@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mutfak Siparişleri</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
+        th { background: #333; color: white; }
+        .bekliyor { color: red; font-weight: bold; }
+        .hazir { color: green; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<h2>🍳 Mutfak Sipariş Ekranı</h2>
+
+<table>
+    <tr>
+        <th>Oda</th>
+        <th>Ürün</th>
+        <th>Seçenek</th>
+        <th>Adet</th>
+        <th>Zaman</th>
+        <th>Durum</th>
+    </tr>
+
+    {% for o in orders %}
+    <tr>
+        <td>{{ o.room }}</td>
+        <td>{{ o.product }}</td>
+        <td>{{ o.option or "-" }}</td>
+        <td>{{ o.qty }}</td>
+        <td>{{ o.created_at }}</td>
+        <td class="{{ o.status }}">{{ o.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

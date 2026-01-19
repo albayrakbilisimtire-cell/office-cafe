@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Office Cafe</title>
+    <style>
+        body { margin:0; font-family: Arial }
+        header {
+            background:#222;
+            color:white;
+            padding:10px 20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        a { color:white; text-decoration:none; margin-left:15px }
+        main { padding:20px }
+    </style>
+</head>
+<body>
+
+<header>
+    <b>☕ Office Cafe</b>
+
+    {% if session.get("user_id") %}
+        <div>
+            {% if session.get("role") == "admin" %}
+                <a href="/admin">Admin</a>
+            {% endif %}
+            <a href="/user">Sipariş</a>
+            <a href="/logout">Çıkış</a>
+        </div>
+    {% endif %}
+</header>
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>

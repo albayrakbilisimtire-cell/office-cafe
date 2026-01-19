@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+<Product Id="*" Name="Office Cafe System"
+         Language="1033"
+         Version="1.0.0"
+         Manufacturer="YourCompany"
+         UpgradeCode="A1B2C3D4-1111-2222-3333-444455556666">
+
+<Package InstallerVersion="500"
+         Compressed="yes"
+         InstallScope="perMachine" />
+
+<MajorUpgrade DowngradeErrorMessage="Yeni sürüm yüklü." />
+
+<MediaTemplate />
+
+<Directory Id="TARGETDIR" Name="SourceDir">
+  <Directory Id="ProgramFilesFolder">
+    <Directory Id="INSTALLDIR" Name="OfficeCafe">
+      <Component Id="MainExe" Guid="*">
+        <File Id="OfficeCafeExe"
+              Source="..\dist\OfficeCafe.exe"
+              KeyPath="yes"/>
+      </Component>
+    </Directory>
+  </Directory>
+
+  <Directory Id="ProgramMenuFolder">
+    <Directory Id="AppMenu" Name="Office Cafe">
+      <Component Id="StartMenu" Guid="*">
+        <Shortcut Id="StartShortcut"
+                  Name="Office Cafe"
+                  Target="[INSTALLDIR]OfficeCafe.exe"
+                  WorkingDirectory="INSTALLDIR"/>
+        <RemoveFolder Id="RemoveMenu" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\OfficeCafe"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </Directory>
+  </Directory>
+</Directory>
+
+<Feature Id="MainFeature" Title="Office Cafe" Level="1">
+  <ComponentRef Id="MainExe"/>
+  <ComponentRef Id="StartMenu"/>
+</Feature>
+
+</Product>
+</Wix>

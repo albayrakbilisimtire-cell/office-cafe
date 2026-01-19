@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Kullanıcı Yönetimi</h2>
+
+<div class="card">
+<form method="post">
+    <input name="u" placeholder="Kullanıcı adı" required>
+    <input name="p" placeholder="Şifre" required>
+    <select name="r">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+    </select>
+    <input name="room" placeholder="Oda" required>
+    <button class="btn success">Kaydet</button>
+</form>
+</div>
+
+<br>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Kullanıcı</th>
+    <th>Rol</th>
+    <th>Oda</th>
+    <th>İşlem</th>
+</tr>
+{% for u in users %}
+<tr>
+    <td>{{ u.id }}</td>
+    <td>{{ u.username }}</td>
+    <td>{{ u.role }}</td>
+    <td>{{ u.room }}</td>
+    <td>
+        <a href="/admin/users/delete/{{ u.id }}"
+           onclick="return confirm('Silinsin mi?')">
+            <button class="btn danger">Sil</button>
+        </a>
+    </td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}

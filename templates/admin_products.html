@@ -1,0 +1,45 @@
+<h2>Ürün Ekle</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <input name="name" placeholder="Ürün adı" required><br><br>
+
+    <input type="file" name="image"><br><br>
+
+    <label>
+        <input type="checkbox" id="hasOptions" name="has_options">
+        Özel seçenek var mı?
+    </label>
+
+    <div id="optionsBox" style="display:none">
+        <input type="text" name="options[]" placeholder="Seçenek (Sade)">
+        <button type="button" onclick="addOption()">+</button>
+    </div>
+
+    <br>
+    <button type="submit">Kaydet</button>
+</form>
+
+<hr>
+
+<h3>Ürünler</h3>
+<ul>
+{% for p in products %}
+    <li>{{ p.name }}</li>
+{% endfor %}
+</ul>
+
+<script>
+function addOption() {
+    let box = document.getElementById("optionsBox");
+    let input = document.createElement("input");
+    input.name = "options[]";
+    input.placeholder = "Seçenek";
+    box.appendChild(document.createElement("br"));
+    box.appendChild(input);
+}
+
+document.getElementById("hasOptions").onchange = function() {
+    document.getElementById("optionsBox").style.display =
+        this.checked ? "block" : "none";
+};
+</script>

@@ -1,0 +1,8 @@
+__pycache__/
+venv/
+myenv/
+.env
+*.sqlite3
+office.db
+dist/
+exports/

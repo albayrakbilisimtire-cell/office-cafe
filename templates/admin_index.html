@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Admin Paneli</h1>
+<p>Hoşgeldin: <b>{{ session.room }}</b></p>
+
+<style>
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
+    }
+    .card {
+        border: 1px solid #ddd;
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+        background: #fafafa;
+        transition: 0.2s;
+    }
+    .card:hover {
+        background: #f0f0f0;
+        transform: scale(1.02);
+    }
+    .icon {
+        font-size: 40px;
+        margin-bottom: 10px;
+    }
+    .title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+    .desc {
+        font-size: 14px;
+        color: #666;
+    }
+    a {
+        text-decoration: none;
+        color: black;
+    }
+</style>
+
+<div class="admin-grid">
+
+    <a href="/admin/users">
+        <div class="card">
+            <div class="icon">👤</div>
+            <div class="title">Kullanıcı Yönetimi</div>
+            <div class="desc">Kullanıcı ekle, sil, düzenle</div>
+        </div>
+    </a>
+
+    <a href="/admin/products">
+        <div class="card">
+            <div class="icon">📦</div>
+            <div class="title">Ürün Yönetimi</div>
+            <div class="desc">Ürünleri yönet</div>
+        </div>
+    </a>
+    
+    <a href="/admin/orders">🍳 Mutfak Siparişleri</a>
+    <a href="/admin/export">
+        <div class="card">
+            <div class="icon">📊</div>
+            <div class="title">Raporlar</div>
+            <div class="desc">Sipariş raporları</div>
+        </div>
+    </a>
+
+</div>
+
+{% endblock %}

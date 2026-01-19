@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Mutfak Siparişleri</title>
+
+<style>
+body { background:#111; color:#fff; font-family:Arial }
+table { width:100%; border-collapse:collapse }
+th,td { padding:10px; text-align:center }
+tr { background:#400 }
+.btn { padding:6px 12px; text-decoration:none; font-weight:bold }
+.hazir { background:orange; color:black }
+.teslim { background:lime; color:black }
+</style>
+</head>
+
+<body>
+
+<!-- SES + BİLDİRİM AKTİF BUTONU -->
+<button id="enableSound" style="
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 9999;
+    background: orange;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+">
+🔊 Ses & Bildirim Aç
+</button>
+
+<audio id="alertSound">
+    <source src="{{ url_for('static', filename='alert.mp3') }}" type="audio/mpeg">
+</audio>
+
+<h2>☕ Mutfak Siparişleri</h2>
+
+<table>
+<tr>
+<th>Oda</th><th>Ürün</th><th>Seçenek</th>
+<th>Adet</th><th>Zaman</th><th>İşlem</th>
+</tr>
+
+{% for o in orders %}
+<tr>
+<td>{{ o.room }}</td>
+<td>{{ o.product }}</td>
+<td>{{ o.option or "-" }}</td>
+<td>{{ o.qty }}</td>
+<td>{{ o.created_at }}</td>
+<td>
+{% if o.status == "bekliyor" %}
+<a class="btn hazir" href="/order/status/{{o.id}}/hazırlanıyor">Hazırlanıyor</a>
+{% elif o.status == "hazırlanıyor" %}
+<a class="btn teslim" href="/order/status/{{o.id}}/teslim edildi">Teslim Et</a>
+{% else %}
+<span style="color:lightgreen;">Teslim Edildi</span>
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<script>
+// 🔊 SES + 🔔 BİLDİRİM AKTİF ET
+document.getElementById("enableSound").addEventListener("click", async () => {
+    await Notification.requestPermission();
+    document.getElementById("alertSound").play();
+    document.getElementById("enableSound").style.display = "none";
+});
+
+// 🔁 YENİ SİPARİŞ KONTROL
+let lastCount = {{ orders|length }};
+
+setInterval(() => {
+    fetch("/kitchen/count")
+        .then(r => r.json())
+        .then(d => {
+            if (d.count > lastCount) {
+                document.getElementById("alertSound").play();
+
+                new Notification("☕ Yeni Sipariş!", {
+                    body: "Mutfağa yeni sipariş geldi"
+                });
+
+                lastCount = d.count;
+
+                // ⏱️ 1 sn sonra sayfayı yenile
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        });
+}, 5000);
+</script>
+
+</body>
+</html>
