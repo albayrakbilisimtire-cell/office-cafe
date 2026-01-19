@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, redirect, session, send_file
+from flask import Flask, render_template, request, redirect, session, send_file, url_for
 from werkzeug.utils import secure_filename
+from functools import wraps
 from db import get_db
 import os
 import pandas as pd
@@ -11,8 +12,20 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# ---------------- LOGIN ----------------
+# ---------------- LOGIN REQUIRED ----------------
+def login_required(role=None):
+    def wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if "user_id" not in session:
+                return redirect(url_for("login"))
+            if role and session.get("role") != role:
+                return redirect(url_for("login"))
+            return f(*args, **kwargs)
+        return decorated
+    return wrapper
 
+# ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
 def login():
     if session.get("user_id"):
@@ -52,19 +65,15 @@ def logout():
     session.clear()
     return redirect("/")
 
-
 # ---------------- ADMIN ----------------
 @app.route("/admin")
+@login_required("admin")
 def admin():
-    if session.get("role") != "admin":
-        return redirect("/")
     return render_template("admin_index.html")
 
 @app.route("/admin/orders")
+@login_required("admin")
 def admin_orders():
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
     orders = db.execute("""
         SELECT 
@@ -83,12 +92,9 @@ def admin_orders():
 
     return render_template("admin_orders.html", orders=orders)
 
-# ---------------- USERS ----------------
 @app.route("/admin/users", methods=["GET", "POST"])
+@login_required("admin")
 def admin_users():
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
 
     if request.method == "POST":
@@ -106,24 +112,17 @@ def admin_users():
     users = db.execute("SELECT * FROM users").fetchall()
     return render_template("admin_users.html", users=users)
 
-
 @app.route("/admin/users/delete/<int:id>")
+@login_required("admin")
 def delete_user(id):
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
     db.execute("DELETE FROM users WHERE id=?", (id,))
     db.commit()
     return redirect("/admin/users")
 
-
-# ---------------- PRODUCTS ----------------
 @app.route("/admin/products", methods=["GET", "POST"])
+@login_required("admin")
 def admin_products():
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
 
     if request.method == "POST":
@@ -157,24 +156,18 @@ def admin_products():
     products = db.execute("SELECT * FROM products").fetchall()
     return render_template("admin_products.html", products=products)
 
-
 @app.route("/admin/products/delete/<int:id>")
+@login_required("admin")
 def delete_product(id):
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
     db.execute("DELETE FROM products WHERE id=?", (id,))
     db.commit()
     return redirect("/admin/products")
 
-
 # ---------------- USER ----------------
 @app.route("/user")
+@login_required()
 def user():
-    if "user_id" not in session:
-        return redirect("/")
-
     db = get_db()
     products = db.execute("SELECT * FROM products").fetchall()
 
@@ -202,13 +195,10 @@ def user():
         rooms=rooms
     )
 
-
 # ---------------- ORDER ----------------
 @app.route("/order", methods=["POST"])
+@login_required()
 def order():
-    if "user_id" not in session:
-        return redirect("/")
-
     db = get_db()
     room = request.form.get("room")
 
@@ -232,10 +222,8 @@ def order():
 
 # ---------------- KITCHEN ----------------
 @app.route("/kitchen")
+@login_required("cafe")
 def kitchen():
-    if session.get("role") != "cafe":
-        return redirect("/")
-
     db = get_db()
     orders = db.execute("""
         SELECT
@@ -255,10 +243,8 @@ def kitchen():
     return render_template("kitchen.html", orders=orders)
 
 @app.route("/order/status/<int:id>/<status>")
+@login_required("cafe")
 def order_status(id, status):
-    if session.get("role") != "cafe":
-        return redirect("/")
-
     db = get_db()
     db.execute(
         "UPDATE orders SET status=? WHERE id=?",
@@ -268,6 +254,7 @@ def order_status(id, status):
     return redirect("/kitchen")
 
 @app.route("/kitchen/count")
+@login_required("cafe")
 def kitchen_count():
     db = get_db()
     c = db.execute(
@@ -277,10 +264,8 @@ def kitchen_count():
 
 # ---------------- EXPORT ----------------
 @app.route("/admin/export")
+@login_required("admin")
 def export():
-    if session.get("role") != "admin":
-        return redirect("/")
-
     db = get_db()
     df = pd.read_sql("SELECT * FROM orders", db)
 
@@ -289,7 +274,6 @@ def export():
     df.to_excel(path, index=False)
 
     return send_file(path, as_attachment=True)
-
 
 # ---------------- RUN ----------------
 if __name__ == "__main__":
